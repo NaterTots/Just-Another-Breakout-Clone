@@ -5,6 +5,7 @@
     public const string LostBall = "LostBall";
     public const string OnLevelStart = "OnLevelStart";
     public const string OnLevelEnd = "OnLevelEnd";
+    public const string BrickDestroyed = "BrickDestroyed";
 
     #endregion
 }

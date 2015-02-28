@@ -20,15 +20,16 @@ public class Paddle : MonoBehaviour {
     {
         float horizontal = Input.GetAxis("Horizontal");
 
+        Debug.Log("horizontal: " + horizontal);
+        Debug.Log("Time.deltaTime: " + Time.deltaTime);
+
         if (horizontal > 0)
         {
             rigidbody2D.MovePosition(rigidbody2D.position + speed * Time.deltaTime);
-            //transform.Translate(new Vector2(0.1f, 0.0f));
         }
         else if (horizontal < 0)
         {
             rigidbody2D.MovePosition(rigidbody2D.position - speed * Time.deltaTime);
-            //transform.Translate(new Vector2(-0.1f, 0.0f));
         }
         //else
         //{

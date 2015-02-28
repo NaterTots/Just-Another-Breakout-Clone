@@ -5,6 +5,8 @@ public class BrickMap : MonoBehaviour
 {
     public GameObject brick;
 
+    private BrickPool _brickPool;
+
     float brickWidth;
     float brickHeight;
 
@@ -12,16 +14,20 @@ public class BrickMap : MonoBehaviour
 	void Awake () 
     {
         Resolver.Instance.GetController<EventController>().Subscribe(GameEvents.OnLevelStart, OnLevelStart);
+        Resolver.Instance.GetController<EventController>().Subscribe(GameEvents.BrickDestroyed, OnBrickDestroyed);
 
         brickWidth = brick.renderer.bounds.size.x;
         brickHeight = brick.renderer.bounds.size.y;
-        Debug.Log("brickWidth: " + brickWidth);
-        Debug.Log("brickHeight: " + brickHeight);
+
+        _brickPool = new BrickPool();
+        _brickPool.brickFab = brick;
+        _brickPool.Initialize(this.gameObject);
 	}
 
     void OnDestroy()
     {
         Resolver.Instance.GetController<EventController>().UnSubscribe(GameEvents.OnLevelStart, OnLevelStart);
+        Resolver.Instance.GetController<EventController>().UnSubscribe(GameEvents.BrickDestroyed, OnBrickDestroyed);
     }
 
 	// Update is called once per frame
@@ -35,22 +41,24 @@ public class BrickMap : MonoBehaviour
         LoadFromLevel(Resolver.Instance.GetController<LevelManager>().CurrentLevel);
     }
 
+    void OnBrickDestroyed(IEventArgs args)
+    {
+        if (_brickPool.GetActiveCount() <= 0)
+        {
+            Resolver.Instance.GetController<LevelManager>().GoToNextLevel();
+        }
+    }
+
     void LoadFromLevel(Level level)
     {
-        Debug.Log("Level Num: " + level.LevelNum);
-
         for(int x = 0; x < Level.Height; x++)
         {
             for (int y = 0; y < Level.Width; y++)
 			{
-                Debug.Log("Level " + x.ToString() + ", " + y.ToString() + ": " + level.BrickArray[x, y].ToString());
-
                 if (level.BrickArray[x,y] == Brick.BrickType.Normal)
                 {
-                    GameObject newBrick = (GameObject)Instantiate(brick);
-                    newBrick.transform.parent = this.transform;
+                    GameObject newBrick = (GameObject)_brickPool.InitNewBrick();
                     newBrick.transform.localPosition = new Vector2(y * brickWidth, -x * brickHeight);
-                    
                 }
                 
 			}
